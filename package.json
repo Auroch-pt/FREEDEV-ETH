@@ -1,0 +1,8 @@
+{
+  "name": "FREEDEV-ETH",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/Auroch-pt/FREEDEV-ETH.git",
+  "author": "Afonso Escudeiro <afonso_escudeiro@hotmail.com>",
+  "license": "MIT"
+}
