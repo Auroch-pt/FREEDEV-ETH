@@ -4,5 +4,8 @@
   "main": "index.js",
   "repository": "https://github.com/Auroch-pt/FREEDEV-ETH.git",
   "author": "Afonso Escudeiro <afonso_escudeiro@hotmail.com>",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "git-commit-msg-linter": "^3.2.8"
+  }
 }
