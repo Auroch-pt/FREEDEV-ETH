@@ -4,6 +4,6 @@ import "./Project.sol";
 
 struct User {
 	string username;
-	bool set;
+	bool isSet;
 	Project[] projectArr;
 }

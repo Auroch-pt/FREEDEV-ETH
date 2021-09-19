@@ -17,29 +17,29 @@ contract FRDVPlatform {
 
 	function createUser(string memory _username) public {
 		User storage newUser = userMap[msg.sender];
-		require(!newUser.set, "User already exists.");
+		require(!newUser.isSet, "User already exists.");
 		newUser.username = _username;
-		newUser.set = true;
+		newUser.isSet = true;
 	}
 
-	function getUser(address _address) public view returns (User memory){
-		require(userMap[_address].set, "User doesn't exists.");
-		return userMap[_address];
+	function getUser(address _address) public view returns (string memory username, bool isSet){
+		require(userMap[_address].isSet, "User doesn't exists.");
+		return (userMap[_address].username, userMap[_address].isSet);
 	}
 
 	function createProject(string memory _title) public {
 		Project storage newProject = projectMap[projectCounter];
-		require(!newProject.set, "Project already exists.");
+		require(!newProject.isSet, "Project already exists.");
 		newProject.author = msg.sender;
 		newProject.id = projectCounter;
 		newProject.title = _title;
-		newProject.set = true;
+		newProject.isSet = true;
 		userMap[msg.sender].projectArr.push(projectMap[projectCounter]);
 		projectCounter++;
 	}
 
-	function getProject(uint256 _projectId) public view returns (Project memory){
-		require(projectMap[_projectId].set, "Project doesn't exists.");
+	function getProject(uint256 _projectId) public view returns (Project memory project){
+		require(projectMap[_projectId].isSet, "Project doesn't exists.");
 		return projectMap[_projectId];
 	}
 }

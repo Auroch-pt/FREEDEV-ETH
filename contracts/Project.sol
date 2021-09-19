@@ -5,5 +5,5 @@ struct Project {
 	address author;
 	uint256 id;
 	string title;
-	bool set;
+	bool isSet;
 }
