@@ -5,5 +5,5 @@ import "./Project.sol";
 struct User {
 	string username;
 	bool set;
-	Project[] projects;
+	Project[] projectArr;
 }
