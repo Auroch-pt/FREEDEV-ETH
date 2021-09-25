@@ -23,9 +23,9 @@ contract APIConsumer is ChainlinkClient {
 
 		Chainlink.Request memory request = buildChainlinkRequest(jobId, address(this), this.fulfill.selector);
 
-		request.add("get", "https://api.github.com/repos/Auroch-pt/FREEDEV-ETH/pulls/2/commits");
+		request.add("get", "https://api.github.com/repos/Auroch-pt/FREEDEV-ETH/pulls/2");
 
-		request.add("path", "0.commit.message");
+		request.add("path", "title");
 
 		return sendChainlinkRequestTo(oracle, request, fee);
 	}
