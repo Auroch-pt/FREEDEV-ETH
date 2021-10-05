@@ -6,8 +6,6 @@ import "@chainlink/contracts/src/v0.8/ChainLinkClient.sol";
 contract APIConsumer is ChainlinkClient {
 	using Chainlink for Chainlink.Request;
 
-	bytes32 public state;
-
 	address public oracle;
 	bytes32 private jobId;
 	uint256 private fee;
@@ -19,18 +17,14 @@ contract APIConsumer is ChainlinkClient {
 		fee = 0.1 * 10 ** 18; // (Varies by network and job)
 	}
 
-	function requestVolumeData() public returns (bytes32) {
+	function requestVolumeData(string memory _url, address callbackContract ,bytes4 functionSelector, string memory path) public returns (bytes32) {
 
-		Chainlink.Request memory request = buildChainlinkRequest(jobId, address(this), this.fulfill.selector);
+		Chainlink.Request memory request = buildChainlinkRequest(jobId, callbackContract, functionSelector);
 
-		request.add("get", "https://api.github.com/repos/Auroch-pt/FREEDEV-ETH/pulls/2");
+		request.add("get", _url);
 
-		request.add("path", "title");
+		request.add("path", path);
 
 		return sendChainlinkRequestTo(oracle, request, fee);
 	}
-
-	function fulfill(bytes32 _requestId, bytes32 _state) public recordChainlinkFulfillment(_requestId) {
-		state = _state;
-  }
 }
