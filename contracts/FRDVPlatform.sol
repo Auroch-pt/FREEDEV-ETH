@@ -1,22 +1,38 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
+import "./ApiConsumer.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "./User.sol";
 import "./Project.sol";
-import "./ApiConsumer.sol";
+import "./Issue.sol";
+import "./FRDVToken.sol";
 
 contract FRDVPlatform {
 	IERC20 public token;
 	mapping(address => User) public userMap;
-	mapping(uint256 => Project) public projectMap;
-	uint256 public projectCounter = 0;
+	mapping(address => Project) public projectMap;
+	mapping(address => Issue) public issueMap;
 	APIConsumer private apiConsumer;
-	bytes32 public state;
+	
+	event Bought(uint256 amount);
+	event Sold(uint256 amount);
 
-	constructor(IERC20 _token, APIConsumer _apiConsumer) {
-		token = _token;
-		apiConsumer = _apiConsumer;
+	constructor() payable {
+		token = new FRDVToken(10000000);
+		apiConsumer = new APIConsumer();
+	}
+
+	function buyTokens() public payable {
+		uint256 amountTobuy = 1000;
+		uint256 dexBalance = token.balanceOf(address(this));
+		require(amountTobuy <= dexBalance, "Not enough tokens in the reserve");
+		token.transfer(msg.sender, amountTobuy);
+		emit Bought(amountTobuy);
+	}
+	
+	function getBalance(address _address) public view returns (uint256 balance) {
+		return token.balanceOf(_address);
 	}
 
 	function createUser(string memory _username) public {
@@ -31,27 +47,27 @@ contract FRDVPlatform {
 		return (userMap[_address].username, userMap[_address].isSet);
 	}
 
-	function createProject(string memory _title) public {
-		Project storage newProject = projectMap[projectCounter];
-		require(!newProject.isSet, "Project already exists.");
-		newProject.author = msg.sender;
-		newProject.id = projectCounter;
-		newProject.title = _title;
-		newProject.isSet = true;
-		userMap[msg.sender].projectArr.push(projectMap[projectCounter]);
-		projectCounter++;
+	function createProject(string memory _title) public returns (Project project) {
+		Project newProject = new Project(msg.sender, _title);
+		projectMap[address(newProject)] = newProject;
+		userMap[msg.sender].projectArr.push(projectMap[address(newProject)]);
+		return newProject;
 	}
 
-	function getProject(uint256 _projectId) public view returns (Project memory project){
-		require(projectMap[_projectId].isSet, "Project doesn't exists.");
-		return projectMap[_projectId];
+	function getProject(address _projectAdd) public view returns (Project project) {
+		return projectMap[_projectAdd];
 	}
 
-	function fulfill(bytes32 _requestId, bytes32 _state) public {
-		state = _state;
+	function createIsssue(address _projectAdd, uint256 _id, string memory _title, uint256 _reward) public returns (Issue issue){
+		require(_reward > 0, "The reward must be greater than 0");
+		require(token.balanceOf(msg.sender) >= _reward, "You don't have the reward tokens");
+		Issue newIssue = projectMap[_projectAdd].createIsssue(msg.sender, _id, _title, _reward, apiConsumer);
+		issueMap[address(newIssue)] = newIssue;
+		token.transferFrom(msg.sender, address(newIssue), _reward);
+		return newIssue;
 	}
-	
-	function claimReward(string memory _url, string memory path) public {
-		apiConsumer.requestVolumeData(_url, address(this), this.fulfill.selector, path);
+
+	function getIssue(address issueAddress) public view returns (Issue issue) {
+		return issueMap[issueAddress];
 	}
 }
